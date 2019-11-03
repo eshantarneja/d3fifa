@@ -16,7 +16,6 @@
 }
 </style>
 
-
 <script>
 
   // set the dimensions and margins of the graph
@@ -26,6 +25,15 @@ var margin = {top: 10, right: 30, bottom: 30, left: 70},
 
 // append the svg object to the body of the page
 var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// svg for linked plot
+var svg2 = d3.select("#my_dataviz")
   .append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -51,7 +59,21 @@ d3.csv("https://raw.githubusercontent.com/eshantarneja/d3fifa/master/fifa.csv", 
     .range([ height, 0]);
   svg.append("g")
     .call(d3.axisLeft(y));
-    
+
+  // add axis for linked plots
+  var x2 = d3.scaleLinear()
+    .domain([0, 100])
+    .range([ 0, width ]);
+  svg2.append("g")
+    .attr("transform", "translate(0," + height + ")")
+    .call(d3.axisBottom(x));
+
+  var y2 = d3.scaleLinear()
+    .domain([0, 100])
+    .range([ height, 0]);
+  svg2.append("g")
+    .call(d3.axisLeft(y));
+
     // Add dots
   var myCircle = svg.append('g')
     .selectAll("dot")
@@ -60,6 +82,17 @@ d3.csv("https://raw.githubusercontent.com/eshantarneja/d3fifa/master/fifa.csv", 
     .append("circle")
       .attr("cx", function (d) { return x(d.Overall); } )
       .attr("cy", function (d) { return y(+ d.Value); } )
+      .attr("r", 1.5)
+      .style("fill", "#69b3a2")
+
+    // Add dots plot 2
+  var myCircle2 = svg2.append('g')
+    .selectAll("dot")
+    .data(data)
+    .enter()
+    .append("circle")
+      .attr("cx", function (d) { return x2(d.BallControl); } )
+      .attr("cy", function (d) { return y2(d.Dribbling); } )
       .attr("r", 1.5)
       .style("fill", "#69b3a2")
 
@@ -74,6 +107,7 @@ d3.csv("https://raw.githubusercontent.com/eshantarneja/d3fifa/master/fifa.csv", 
   function updateChart() {
     extent = d3.event.selection
     myCircle.classed("selected", function(d){ return isBrushed(extent, x(d.Overall), y(+ d.Value) ) } )
+    //probably need and update for myCircle2
   }
 
   // A function that return TRUE or FALSE according if a dot is in the selection or not
