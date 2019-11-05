@@ -30,6 +30,9 @@
 
     <!-- Create a div where the graph will take place -->
     <div id="rating_salary_scatter"></div>
+    <!-- Initialize a select button -->
+    <select id="selectXaxis"></select>
+    <select id="selectYaxis"></select>
     <div id="salary_histogram"></div>
 
   <p>
@@ -81,6 +84,26 @@
   // get the data
   d3.csv("https://raw.githubusercontent.com/eshantarneja/d3fifa/master/fifa.csv", function(data) {
 
+    var atts = ["Composure", "BallControl", "Crossing", "Finishing"]
+
+    d3.select("#selectXaxis")
+      .selectAll('myOptions')
+      .data(atts)
+      .enter()
+      .append('option')
+      .text(function (d) { return d; }) // text showed in the menu
+      .attr("value", function (d) { return d; })
+       // corresponding value returned by the button
+
+     d3.select("#selectYaxis")
+      .selectAll('myOptions')
+      .data(atts)
+      .enter()
+      .append('option')
+      .text(function (d) { return d; }) // text showed in the menu
+      .attr("value", function (d) { return d; })
+       // corresponding value returned by the button
+
     // X axis: scale and draw:
     var xHistSalary = d3.scaleLinear()
         .domain([0, d3.max(data, function(d) { return +d.Value })])     
@@ -89,7 +112,6 @@
         .style("font", "7px times")
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(xHistSalary));
-
 
     // Y axis: initialization
     var yHistSalary = d3.scaleLinear()
@@ -126,6 +148,7 @@
         .call(d3.axisLeft(yScatterLink));
 
     // Add dots
+
     var myCircle = svgScatter.append('g')
         .selectAll("dot")
         .data(data)
@@ -135,7 +158,60 @@
           .attr("cy", function (d) { return yScatter(+ d.Value); } )
           .attr("r", 1.5)
           .style("fill", "#69b3a2")
-        
+
+    var myCircle2 = svgScatterLink.append('g')
+      .selectAll("dot")
+      .data(data)
+      .enter()
+      .append("circle")
+        .attr("cx", function (d) { return xScatterLink(d[d3.select("#selectXaxis").property("value")]); } )
+        .attr("cy", function (d)  { return yScatterLink(d[d3.select("#selectYaxis").property("value")]); })
+        .attr("r", 1.5)
+        .style("fill", "#69b3a2")
+
+        // When the button is changed, run the updateChart function
+    d3.select("#selectXaxis").on("change", function(d) {
+        // recover the option that has been chosen
+        var selectedOption = d3.select(this).property("value")
+        // run the updateChart function with this selected option
+        deleteOld()
+        updateXaxis(selectedOption)
+    })
+
+    d3.select("#selectYaxis").on("change", function(d) {
+        // recover the option that has been chosen
+        var selectedOption = d3.select(this).property("value")
+        // run the updateChart function with this selected option
+        deleteOld()
+        updateYaxis(selectedOption)
+    })
+    
+
+    function updateXaxis(axis) {
+
+      var myCircle2 = svgScatterLink.append('g')
+      .selectAll("dot")
+      .data(toVisualize)
+      .enter()
+      .append("circle")
+        .attr("cx", function (d) { return xScatterLink(d[axis]); } )
+        .attr("cy", function (d) { return yScatterLink(d[d3.select("#selectYaxis").property("value")]); } )
+        .attr("r", 1.5)
+        .style("fill", "#69b3a2")
+      } 
+
+    function updateYaxis(axis) {
+
+      var myCircle2 = svgScatterLink.append('g')
+      .selectAll("dot")
+      .data(toVisualize)
+      .enter()
+      .append("circle")
+        .attr("cx", function (d) { return xScatterLink(d[d3.select("#selectXaxis").property("value")]); } )
+        .attr("cy", function (d) { return yScatterLink(d[axis]); } )
+        .attr("r", 1.5)
+        .style("fill", "#69b3a2")
+      } 
 
     function updateScatter(newData) {
 
@@ -153,6 +229,7 @@
     function deleteOld(){
       svgScatterLink.selectAll("circle").remove()
     }
+
 
     // A function that builds the graph for a specific value of bin
     function update(nBin) {
@@ -216,12 +293,13 @@
       )
 
   var dataset = data
+  var toVisualize = data
 
   // Function that is triggered when brushing is performed
   function updateChart() {
     extent = d3.event.selection
     // create var that holds only data point using dataset.filter
-    var toVisualize = dataset.filter(function(d){return isBrushed(extent, xScatter(d.Overall), yScatter(+ d.Value) )})
+    toVisualize = dataset.filter(function(d){return isBrushed(extent, xScatter(d.Overall), yScatter(+ d.Value) )})
     // call update.svgScatter that will take in filtered data set and set data for svgScatter
     myCircle.classed("selected_scatter_points", function(d){ return isBrushed(extent, xScatter(d.Overall), yScatter(+ d.Value) ) } )
     //probably need and update for myCircle2
