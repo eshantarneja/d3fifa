@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang='en'>
+  <head> 
+    <meta charset="utf-8">
+
+    <style>
+      text {
+            font-family: sans-serif;
+            fill: #000000;
+      }
+
+      table {
+            visibility: hidden;
+            position: absolute;
+            top: 20px;
+            left: 1000px;
+            font-family: sans-serif;
+            font-size: 0.7em;
+            border: 1px solid black;
+            border-collapse: collapse;
+            border-spacing: 5px;
+      }
+
+      tr:nth-child(even) {
+            background-color: #d9d9d9;
+      }
+
+      /*tr:hover {background-color: #f5f5f5;}*/
+
+      th, td {
+        border: 1px solid black;
+        border-collapse: collapse;
+        padding: 5px;
+      }
+
+      #selectXaxis {
+        position: absolute;
+        left: 540px;
+        font-size: 20px;
+        display: block;
+        font-family: sans-serif;
+      }
+
+      #selectYaxis{
+        position: absolute;
+        left: 690px;
+        font-size: 20px;
+        font-family: sans-serif;
+      }
+     
+     /* style of selected circles in scatterplot */
+      .brushed {
+          opacity: 1 !important;
+          stroke: black;
+          stroke-width: 0.25px;
+      }
+
+
+      .non_brushed {
+            fill: #69b3a2;
+            opacity: 0.5;
+      }
+
+      .dropdown {
+        background-color: #555555;
+        font-size: 12px;
+      } /* Black */
+
+    </style>
+
+    <title>HIST</title>
+
+    <!-- Load d3.js -->
+    <script src="https://d3js.org/d3.v4.js"></script>
+
+  </head>
+
+  <body>
+
+    <!-- Create a div where the graph will take place -->
+    <div id="rating_salary_scatter"></div>
+
+    <!-- Initialize a select button -->
+    <select id="selectXaxis" ></select>
+    <select id="selectYaxis" ></select>
+
+    <div id="salary_histogram"></div>
+
+    <!--table for data of brushed elements-->
+    <div id="table">
+        <table>
+            <tr>
+                <th>Player Name</th>
+                <th>Overall Rating</th> 
+                <th>Salary</th> 
+            </tr>
+        </table>
+    </div>
+
+
+
+    <p>
+      <label># of bins</label>
+      <input type="number" min="1" max="100" step="10" value="20" id="nBin">
+    </p>
+
+  <script>
+
+  // add titles to charts, title to web page, instructions, etc.
+
+  // set the dimensions and margins of the graph
+  var margin = {top: 10, right: 30, bottom: 50, left: 90},
+      width = 460 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
+  
+  // append the svg object to the body of the page
+
+  // append the svg object to the body of the page
+  var svgBrush = d3.select("#rating_salary_scatter")
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+    // svg for linked plot
+  var svgLink = d3.select("#rating_salary_scatter")
+    .append("svg")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+      .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")");
+
+  d3.csv("https://raw.githubusercontent.com/eshantarneja/d3fifa/master/fifa.csv", function(data) {
+
+    var atts1 = ["Composure", "BallControl", "Crossing", "Finishing"]
+    var atts2 = ["BallControl", "Composure",  "Crossing", "Finishing"]
+
+    d3.select("#selectXaxis")
+      .selectAll('myOptions')
+      .data(atts1)
+      .enter()
+      .append('option')
+      .text(function (d) { return d; }) // text showed in the menu
+      .attr("value", function (d) { return d; })
+       // corresponding value returned by the button
+     d3.select("#selectYaxis")
+      .selectAll('myOptions')
+      .data(atts2)
+      .enter()
+      .append('option')
+      .text(function (d) { return d; }) // text showed in the menu
+      .attr("value", function (d) { return d; })
+
+
+         // Add X axis
+    var xBrush = d3.scaleLinear()
+        .domain([0, 100])
+        .range([ 0, width ]);
+    svgBrush.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(xBrush));
+
+    // text label for the x axis
+    svgBrush.append("text")             
+        .attr("transform",
+              "translate(" + (width/2) + " ," + 
+                             (height + margin.top + 30) + ")")
+        .style("text-anchor", "middle")
+        .text("Attribute 1");
+      
+    // Add Y axis
+    var yBrush = d3.scaleLinear()
+        .domain([0, 100])
+        .range([ height, 0]);
+    svgBrush.append("g")
+        .call(d3.axisLeft(yBrush));
+          // .tickFormat(formatSalary));
+
+    // text label for the y axis
+    svgBrush.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Attribute 2"); 
+      
+    // add axis for linked plots
+    var xLink = d3.scaleLinear()
+        .domain([0, 100])
+        .range([ 0, width ]);
+    svgLink.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(xLink));    
+
+    var yLink = d3.scaleLinear()
+        .domain([0, 120000000])
+        .range([ height, 0]);
+    svgLink.append("g")
+        .call(d3.axisLeft(yLink));
+
+
+     // text label for the x axis
+    svgLink.append("text")             
+        .attr("transform",
+              "translate(" + (width/2) + " ," + 
+                             (height + margin.top + 30) + ")")
+        .style("text-anchor", "middle")
+        .text("Overall Rating");
+
+  // text label for the y axis
+    svgLink.append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 0 - margin.left)
+        .attr("x",0 - (height / 2))
+        .attr("dy", "1em")
+        .style("text-anchor", "middle")
+        .text("Salary"); 
+
+
+    var brushCircle = svgBrush.append('g')
+      .selectAll("dot")
+      .data(data)
+      .enter()
+      .append("circle")
+        .attr("cx", function (d) { return xBrush(d[d3.select("#selectXaxis").property("value")]); } )
+        .attr("cy", function (d)  { return yBrush(d[d3.select("#selectYaxis").property("value")]); })
+        .attr("r", 1.5)
+        .style("fill", "#69b3a2")
+      // Add dots
+    var linkCircle = svgLink.append('g')
+        .selectAll("dot")
+        .data(data)
+        .enter()
+        .append("circle")
+          .attr("cx", function (d) { return xLink(d.Overall); } )
+          .attr("cy", function (d) { return yLink(+ d.Value); } )
+          .attr("r", 1.5)
+          // .style("fill", "#69b3a2")
+          .attr("class", "non_brushed");
+
+
+
+    // When the button is changed, run the updateChart function
+    d3.select("#selectXaxis").on("change", function(d) {
+        // recover the option that has been chosen
+        var selectedOption = d3.select(this).property("value")
+        // run the updateChart function with this selected option
+        deleteOldBrush()
+        updateXaxis(selectedOption)
+    })
+    d3.select("#selectYaxis").on("change", function(d) {
+        // recover the option that has been chosen
+        var selectedOption = d3.select(this).property("value")
+        // run the updateChart function with this selected option
+        deleteOldBrush()
+        updateYaxis(selectedOption)
+
+    })
+
+    // create variable brush with all features for when brush is executed
+  var brush = d3.brush()
+                .extent( [ [0,0], [width,height] ] ) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
+                .on("start brush", updateChart)
+                // .on("end", displayTable); 
+
+  // call the brush on the Scatter plot
+  svgBrush
+      .call(brush) 
+    
+    
+    function updateXaxis(axis) {
+      var brushCircle= svgBrush.append('g')
+      .selectAll("dot")
+      .data(data)
+      .enter()
+      .append("circle")
+        .attr("cx", function (d) { return xBrush(d[axis]); } )
+        .attr("cy", function (d) { return yBrush(d[d3.select("#selectYaxis").property("value")]); } )
+        .attr("r", 1.5)
+        .style("fill", "#69b3a2");
+
+      // svgBrush.call(brush.move,null);
+
+
+
+      } 
+    function updateYaxis(axis) {
+      var brushCircle = svgBrush.append('g')
+      .selectAll("dot")
+      .data(data)
+      .enter()
+      .append("circle")
+        .attr("cx", function (d) { return xBrush(d[d3.select("#selectXaxis").property("value")]); } )
+        .attr("cy", function (d) { return yBrush(d[axis]); } )
+        .attr("r", 1.5)
+        .style("fill", "#69b3a2");
+
+        // svgBrush.call(brush.move,null);
+
+
+
+      }
+
+    function deleteOldBrush(){
+      svgBrush.selectAll("circle").remove()
+    }
+
+    function deleteOldLink(){
+      svgLink.selectAll("circle").remove()
+    }
+
+
+
+  var toVisualize = data
+        // Function that is triggered when brushing is performed
+  function updateChart() {
+    extent = d3.event.selection
+
+    // create var that holds only data point using dataset.filter
+    toVisualize = data.filter(function(d){return isBrushed(extent, xBrush(d[d3.select("#selectXaxis").property("value")]), yBrush(d[d3.select("#selectYaxis").property("value")]) )})
+    // call update.svgScatter that will take in filtered data set and set data for svgScatter
+    brushCircle.classed("brushed", function(d){return isBrushed(extent, xBrush(d[d3.select("#selectXaxis").property("value")]), yBrush(d[d3.select("#selectYaxis").property("value")]) )} )
+    //probably need and update for myCircle2
+    deleteOldLink()
+    updateLink(toVisualize)
+  }
+
+  // A function that return TRUE or FALSE according if a dot is in the selection or not
+  function isBrushed(brush_coords, cx, cy) {
+       var x0 = brush_coords[0][0],
+           x1 = brush_coords[1][0],
+           y0 = brush_coords[0][1],
+           y1 = brush_coords[1][1];
+      return x0 <= cx && cx <= x1 && y0 <= cy && cy <= y1;    // This return TRUE or FALSE depending on if the points is in the selected area
+  }
+
+
+function updateLink(newData) {
+      var linkCircle = svgLink.append('g')
+        .selectAll("dot")
+        .data(newData)
+        .enter()
+        .append("circle")
+          .attr("cx", function (d) { return xLink(d.Overall); } )
+          .attr("cy", function (d) { return yLink(+ d.Value); } )
+          .attr("r", 1.5)
+          .style("fill", "#69b3a2")
+          // .attr("class", "non_brushed");
+      }
+
+
+
+
+
+
+
+          });
+
+
+      </script>
+    </body>
+    </html>
