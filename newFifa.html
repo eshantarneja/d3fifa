@@ -35,24 +35,24 @@
 
       #selectXaxis {
         position: absolute;
-        left: 540px;
-        font-size: 20px;
+        left: 90px;
+        font-size: 15px;
         display: block;
         font-family: sans-serif;
       }
 
       #selectYaxis{
         position: absolute;
-        left: 690px;
-        font-size: 20px;
+        left: 220px;
+        font-size: 15px;
         font-family: sans-serif;
       }
      
      /* style of selected circles in scatterplot */
       .brushed {
-          opacity: 1 !important;
-          stroke: black;
-          stroke-width: 0.25px;
+        opacity: 1 !important;
+        stroke: black;
+        stroke-width: 1px;
       }
 
 
@@ -84,7 +84,6 @@
     <select id="selectXaxis" ></select>
     <select id="selectYaxis" ></select>
 
-    <div id="salary_histogram"></div>
 
     <!--table for data of brushed elements-->
     <div id="table">
@@ -99,10 +98,6 @@
 
 
 
-    <p>
-      <label># of bins</label>
-      <input type="number" min="1" max="100" step="10" value="20" id="nBin">
-    </p>
 
   <script>
 
@@ -219,7 +214,7 @@
         .style("text-anchor", "middle")
         .text("Salary"); 
 
-
+        // add dots to brush plot
     var brushCircle = svgBrush.append('g')
       .selectAll("dot")
       .data(data)
@@ -229,7 +224,44 @@
         .attr("cy", function (d)  { return yBrush(d[d3.select("#selectYaxis").property("value")]); })
         .attr("r", 1.5)
         .style("fill", "#69b3a2")
-      // Add dots
+
+
+    // Add a tooltip div. Here I define the general feature of the tooltip: stuff that do not depend on the data point.
+  // Its opacity is set to 0: we don't see it by default.
+  var tooltip = d3.select("#rating_salary_scatter")
+    .append("div")
+    .style("opacity", 0)
+    .attr("class", "tooltip")
+    .style("background-color", "white")
+    .style("border", "solid")
+    .style("border-width", "1px")
+    .style("border-radius", "5px")
+    .style("padding", "10px");
+
+
+  // A function that change this tooltip when the user hover a point.
+  // Its opacity is set to 1: we can now see it. Plus it set the text and position of tooltip depending on the datapoint (d)
+  var mouseover = function(d) {
+    tooltip
+      .style("opacity", 1)
+  }
+
+  var mousemove = function(d) {
+    tooltip
+      .html("Player Name: "+ d.Name)
+      .style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+      .style("top", (d3.mouse(this)[1]) + "px")
+  }
+
+  // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
+  var mouseleave = function(d) {
+    tooltip
+      .transition()
+      .duration(200)
+      .style("opacity", 0)
+  }
+
+      // Add dots to linked plot
     var linkCircle = svgLink.append('g')
         .selectAll("dot")
         .data(data)
@@ -239,7 +271,13 @@
           .attr("cy", function (d) { return yLink(+ d.Value); } )
           .attr("r", 1.5)
           // .style("fill", "#69b3a2")
-          .attr("class", "non_brushed");
+          .attr("class", "non_brushed")
+          .on("mouseover", mouseover )
+          .on("mousemove", mousemove )
+          .on("mouseleave", mouseleave )
+          ;
+
+          
 
 
 
@@ -250,6 +288,10 @@
         // run the updateChart function with this selected option
         deleteOldBrush()
         updateXaxis(selectedOption)
+        deleteOldLink()
+        updateLink(data)
+        brush.extent( [ [0,0], [width,height] ] )
+
     })
     d3.select("#selectYaxis").on("change", function(d) {
         // recover the option that has been chosen
@@ -257,6 +299,8 @@
         // run the updateChart function with this selected option
         deleteOldBrush()
         updateYaxis(selectedOption)
+        deleteOldLink()
+        updateLink(data)
 
     })
 
@@ -267,7 +311,11 @@
                 // .on("end", displayTable); 
 
   // call the brush on the Scatter plot
-  svgBrush
+  // svgBrush
+  //     .call(brush)
+
+  svgBrush.append("g")
+      .attr("class", "brush")
       .call(brush) 
     
     
@@ -282,7 +330,7 @@
         .attr("r", 1.5)
         .style("fill", "#69b3a2");
 
-      // svgBrush.call(brush.move,null);
+      svgBrush.select(".brush").call(brush.move, [[0,0], [1,1]])
 
 
 
@@ -348,8 +396,13 @@ function updateLink(newData) {
           .attr("cy", function (d) { return yLink(+ d.Value); } )
           .attr("r", 1.5)
           .style("fill", "#69b3a2")
+          .on("mouseover", mouseover )
+          .on("mousemove", mousemove )
+          .on("mouseleave", mouseleave )
           // .attr("class", "non_brushed");
       }
+
+
 
 
 
