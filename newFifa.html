@@ -383,6 +383,7 @@
         updateYaxis(selectedOption)
         deleteOldLink()
         updateLink(data)
+        brush.extent( [ [0,0], [width,height] ] )
     });
       // create variable brush with all features for when brush is executed
     var brush = d3.brush()
@@ -513,7 +514,7 @@
           .duration(1000)
             .attr("x", 1)
             .attr("transform", function(d) { return "translate(" + xHistSalary(d.x0) + "," + yHistSalary(d.length) + ")"; })
-            .attr("width", function(d) { return xHistSalary(d.x1) - xHistSalary(d.x0) -1 ; })
+            .attr("width", function(d) { return Math.abs(xHistSalary(d.x1) - xHistSalary(d.x0) -1) ; })
             .attr("height", function(d) { return histHeight - yHistSalary(d.length); })
             .style("fill", "#69b3a2")
       // If less bar in the new histogram, I delete the ones not in use anymore
@@ -548,7 +549,7 @@
           .duration(1000)
             .attr("x", 1)
             .attr("transform", function(d) { return "translate(" + xHistOverall(d.x0) + "," + yHistOverall(d.length) + ")"; })
-            .attr("width", function(d) { return xHistOverall(d.x1) - xHistOverall(d.x0) -1 ; })
+            .attr("width", function(d) { return Math.abs(xHistOverall(d.x1) - xHistOverall(d.x0) -1 ); })
             .attr("height", function(d) { return histHeight - yHistOverall(d.length); })
             .style("fill", "#69b3a2")
       // If less bar in the new histogram, I delete the ones not in use anymore
