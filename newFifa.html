@@ -90,6 +90,8 @@
                 <th>Overall Rating</th> 
                 <th>Salary</th> 
                 <th>Position</th>
+                <th>Att 1</th>
+                <th>Att 2</th>
             </tr>
         </table>
     </div>
@@ -339,9 +341,10 @@
     }
     var mousemove = function(d) {
       tooltip
-        .html("Player Name: "+ d.Name)
+        .html("Player Name: "+ d.Name )
         .style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
         .style("top", (d3.mouse(this)[1]) + "px")
+
     }
     // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
     var mouseleave = function(d) {
@@ -610,7 +613,9 @@
       var d_row_filter = [d_row.Name, 
                           +d_row.Overall, 
                           formatSalary(d_row.Value),
-                          d_row.Position];
+                          d_row.Position,
+                          d_row[d3.select("#selectXaxis").property("value")],
+                          d_row[d3.select("#selectYaxis").property("value")]];
       d3.select("table")
         .append("tr")
         .attr("class", "row_data")
