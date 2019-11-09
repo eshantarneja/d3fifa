@@ -383,6 +383,7 @@
         var selectedOption = d3.select(this).property("value")
         // run the updateChart function with this selected option
         deleteOldBrush()
+
         updateXaxis(selectedOption)
         // updateBrush2()
         // updateChart()
@@ -399,6 +400,7 @@
         var selectedOption = d3.select(this).property("value")
         // run the updateChart function with this selected option
         deleteOldBrush()
+        console.log(brushCircle)
         updateYaxis(selectedOption)
         // updateBrush2()
         // updateChart()
@@ -413,7 +415,7 @@
       
     // function to change X axis on brush scatterplot (based on dropdown selection) and populate with data
     function updateXaxis(axis) {
-      var brushCircle= svgBrush.append('g')
+      brushCircle= svgBrush.append('g')
       .selectAll("dot")
       .data(data)
       .enter()
@@ -426,7 +428,7 @@
       } 
     // function to change Y axis on brush scatterplot (based on dropdown selection) and populate with data
     function updateYaxis(axis) {
-      var brushCircle = svgBrush.append('g')
+      brushCircle = svgBrush.append('g')
       .selectAll("dot")
       .data(data)
       .enter()
@@ -464,6 +466,8 @@
       // create var that holds only data point using dataset.filter
       toVisualize = data.filter(function(d){return isBrushed(extent, xBrush(d[d3.select("#selectXaxis").property("value")]), yBrush(d[d3.select("#selectYaxis").property("value")]) )})
       // call update.svgScatter that will take in filtered data set and set data for svgScatter
+
+      console.log("before Class", brushCircle)
       brushCircle.classed("brushed", function(d){return isBrushed(extent, xBrush(d[d3.select("#selectXaxis").property("value")]), yBrush(d[d3.select("#selectYaxis").property("value")]) )} )
       // clear the scatter from old data, update plot with new data
       deleteOldLink()
@@ -591,7 +595,6 @@
             d_brushed.forEach(d_row => populateTableRow(d_row))
         } else {
             clearTableRows();
-            console.log("allo")
         }
   }
   function clearTableRows() {
