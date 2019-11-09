@@ -374,7 +374,8 @@
     // svgBrush
     //     .call(brush)
     svgBrush.append("g")
-        .call(brush) ;
+        .call(brush)
+        .attr("class", "brush") ;
           
     // When the button is changed, run the updateChart function
     d3.select("#selectXaxis").on("change", function(d) {
@@ -420,8 +421,8 @@
         .attr("cx", function (d) { return xBrush(d[axis]); } )
         .attr("cy", function (d) { return yBrush(d[d3.select("#selectYaxis").property("value")]); } )
         .attr("r", 1.5)
-        .style("fill", "#69b3a2")
-      // svgBrush.select(".brush").call(brush.move, [[0,0], [1,1]])
+        .style("fill", "#69b3a2");
+      svgBrush.select(".brush").call(brush.move, [[0,0], [1,1]])
       } 
     // function to change Y axis on brush scatterplot (based on dropdown selection) and populate with data
     function updateYaxis(axis) {
@@ -434,7 +435,7 @@
         .attr("cy", function (d) { return yBrush(d[axis]); } )
         .attr("r", 1.5)
         .style("fill", "#69b3a2")
-          // svgBrush.select(".brush").call(brush.move, [[0,0], [1,1]])
+      svgBrush.select(".brush").call(brush.move, [[0,0], [1,1]])
         // svgBrush.call(brush.move,null);
       }
     // function to remove datapoints from brush scatterplot
@@ -590,6 +591,7 @@
             d_brushed.forEach(d_row => populateTableRow(d_row))
         } else {
             clearTableRows();
+            console.log("allo")
         }
   }
   function clearTableRows() {
