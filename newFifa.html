@@ -146,8 +146,8 @@
   var formatSalary = d3.format("$,");       // $10,000,000
   var formatHistSalary = d3.format(".3s");  // 10.0M
   d3.csv("https://raw.githubusercontent.com/eshantarneja/d3fifa/master/fifa.csv", function(data) {
-    var atts1 = ["Composure", "BallControl", "Crossing", "Finishing"]
-    var atts2 = ["BallControl", "Composure",  "Crossing", "Finishing"]
+    var atts1 = ["Finishing","Crossing", "HeadingAccuracy","ShortPassing","Volleys","Dribbling","Curve","FKAccuracy","LongPassing","BallControl", "Acceleration", "SprintSpeed", "Agility","Reactions","Balance","ShotPower","Jumping","Stamina","Strength","LongShots","Aggression","Interceptions","Positioning","Vision","Penalties","Composure","Marking","StandingTackle","SlidingTackle","GKDiving","GKHandling","GKKicking","GKPositioning","GKReflexes","Release Clause"]
+    var atts2 = ["Crossing",  "Finishing","HeadingAccuracy","ShortPassing","Volleys","Dribbling","Curve","FKAccuracy","LongPassing","BallControl", "Acceleration", "SprintSpeed", "Agility","Reactions","Balance","ShotPower","Jumping","Stamina","Strength","LongShots","Aggression","Interceptions","Positioning","Vision","Penalties","Composure","Marking","StandingTackle","SlidingTackle","GKDiving","GKHandling","GKKicking","GKPositioning","GKReflexes","Release Clause"]
     // add functionality for the select axis buttons
     d3.select("#selectXaxis")
       .selectAll('myOptions')
@@ -400,7 +400,6 @@
         var selectedOption = d3.select(this).property("value")
         // run the updateChart function with this selected option
         deleteOldBrush()
-        console.log(brushCircle)
         updateYaxis(selectedOption)
         // updateBrush2()
         // updateChart()
@@ -467,7 +466,6 @@
       toVisualize = data.filter(function(d){return isBrushed(extent, xBrush(d[d3.select("#selectXaxis").property("value")]), yBrush(d[d3.select("#selectYaxis").property("value")]) )})
       // call update.svgScatter that will take in filtered data set and set data for svgScatter
 
-      console.log("before Class", brushCircle)
       brushCircle.classed("brushed", function(d){return isBrushed(extent, xBrush(d[d3.select("#selectXaxis").property("value")]), yBrush(d[d3.select("#selectYaxis").property("value")]) )} )
       // clear the scatter from old data, update plot with new data
       deleteOldLink()
