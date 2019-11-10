@@ -12,7 +12,7 @@
             visibility: hidden;
             position: absolute;
             top: 20px;
-            left: 1050px;
+            left: 1070px;
             font-family: sans-serif;
             font-size: 0.7em;
             border: 1px solid black;
@@ -30,7 +30,7 @@
       }
       .Xaxis {
         position: absolute;
-        left: 240px;
+        left: 270px;
         top: 420px;
         font-size: 15px;
         display: block;
@@ -46,7 +46,10 @@
       .scatter {
         position: relative;
         left: 25px;
-
+      }
+      .hist{
+        position: absolute;
+        top: 480px;
       }
      /* style of selected circles in scatterplot */
       .brushed {
@@ -54,14 +57,29 @@
         stroke: black;
         stroke-width: 1px;
       }
-      .non_brushed {
-            fill: #69b3a2;
-            opacity: 0.5;
+      .bins {
+        position: absolute;
+        top: 930px;
+        left: 20px;
+        padding: 20px;
+        padding-bottom: 40px;
       }
-      .dropdown {
-        background-color: #555555;
-        font-size: 12px;
-      } /* Black */
+      .tooltip{
+        position: relative;
+        left: 660px;
+        top: -420px;
+      }
+      .selectTextX{
+        position: absolute;
+        top: 422px;
+        left: 110px;
+
+      }
+      .selectTextY{
+        position: absolute;
+        top: 180px;
+      }
+      
     </style>
 
     <title>HIST</title>
@@ -74,13 +92,16 @@
   <body>
 
     <!-- Create a div where the graph will take place -->
-    <div id="rating_salary_scatter" class = "scatter"> </div>
+    <div id="rating_salary_scatter"> 
+      <div class="selectTextX">Select X-axis Attribute:</div>
+      <div class="selectTextY">Select Y-axis Attribute:</div>
+    </div>
 
     <!-- Initialize a select button -->
     <select id="selectXaxis" class="Xaxis"></select>
     <select id="selectYaxis" class="Yaxis"></select>
 
-    <div id="histograms"></div>
+    <div id="histograms" class="hist"></div>
 
     <!--table for data of brushed elements-->
     <div id="table">
@@ -90,13 +111,13 @@
                 <th>Overall Rating</th> 
                 <th>Salary</th> 
                 <th>Position</th>
-                <th>Att 1</th>
-                <th>Att 2</th>
+                <th>X Attribute</th>
+                <th>Y Attribute</th>
             </tr>
         </table>
     </div>
 
-    <p>
+    <p class="bins">
       <label># of bins</label>
       <input type="number" min="1" max="100" step="10" value="20" id="nBin">
     </p>
@@ -104,30 +125,33 @@
   <script>
   // add titles to charts, title to web page, instructions, etc.
   // set the dimensions and margins of the graph
-  var margin = {top: 30, right: 30, bottom: 80, left: 100},
-      width = 460 - margin.left - margin.right,
-      height = 450 - margin.top - margin.bottom;
+  var marginL = {top: 30, right: 30, bottom: 80, left: 180},
+      widthL = 550 - marginL.left - marginL.right,
+      heightL = 450 - marginL.top - marginL.bottom;
+  var marginR = {top: 30, right: 30, bottom: 80, left: 110},
+      widthR = 480 - marginR.left - marginR.right,
+      heightR = 450 - marginR.top - marginR.bottom;
   // specify dimensions for the histogram plots
-  var histMargin = {top: 30, right: 30, bottom: 80, left: 60},
-      histWidth = 550 - margin.left - margin.right,
-      histHeight = 500 - margin.top - margin.bottom;
+  var histMargin = {top: 30, right: 30, bottom: 80, left: 70},
+      histWidth = 530 - histMargin.left - histMargin.right,
+      histHeight = 500 - histMargin.top - histMargin.bottom;
   
   // svg for the Brush scatterplot (left scatter)
   var svgBrush = d3.select("#rating_salary_scatter")
     .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
+      .attr("width", widthL + marginL.left + marginL.right)
+      .attr("height", heightL + marginL.top + marginL.bottom)
     .append("g")
       .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+            "translate(" + marginL.left + "," + marginL.top + ")");
   // svg for linked plot (right scatter)
   var svgLink = d3.select("#rating_salary_scatter")
     .append("svg")
-      .attr("width", width + margin.left + margin.right)
-      .attr("height", height + margin.top + margin.bottom)
+      .attr("width", widthR + marginR.left + marginR.right)
+      .attr("height", heightR + marginR.top + marginR.bottom)
     .append("g")
       .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+            "translate(" + marginR.left + "," + marginR.top + ")");
   // svg for the Salary Histogram
   var svgHistSalary = d3.select("#histograms")
     .append("svg")
@@ -146,7 +170,7 @@
             "translate(" + histMargin.left + "," + histMargin.top  +")");
   // variables that have the specific formatting for salary data
   var formatSalary = d3.format("$,");       // $10,000,000
-  var formatHistSalary = d3.format(".3s");  // 10.0M
+  var formatHistSalary = d3.format(".2s");  // 10.0M
   d3.csv("https://raw.githubusercontent.com/eshantarneja/d3fifa/master/fifa.csv", function(data) {
     var atts1 = ["Finishing","Crossing", "HeadingAccuracy","ShortPassing","Volleys","Dribbling","Curve","FKAccuracy","LongPassing","BallControl", "Acceleration", "SprintSpeed", "Agility","Reactions","Balance","ShotPower","Jumping","Stamina","Strength","LongShots","Aggression","Interceptions","Positioning","Vision","Penalties","Composure","Marking","StandingTackle","SlidingTackle","GKDiving","GKHandling","GKKicking","GKPositioning","GKReflexes","Release Clause"]
     var atts2 = ["Crossing",  "Finishing","HeadingAccuracy","ShortPassing","Volleys","Dribbling","Curve","FKAccuracy","LongPassing","BallControl", "Acceleration", "SprintSpeed", "Agility","Reactions","Balance","ShotPower","Jumping","Stamina","Strength","LongShots","Aggression","Interceptions","Positioning","Vision","Penalties","Composure","Marking","StandingTackle","SlidingTackle","GKDiving","GKHandling","GKKicking","GKPositioning","GKReflexes","Release Clause"]
@@ -166,14 +190,15 @@
       .append('option')
       .text(function (d) { return d; }) // text showed in the menu
       .attr("value", function (d) { return d; })
-       
+  
     // Brush scatterplot (aka Attribute Scatterplot)  
     // Add X axis
     var xBrush = d3.scaleLinear()
         .domain([0, 100])
-        .range([ 0, width ]);
+        .range([ 0, widthL ]);
     svgBrush.append("g")
-        .attr("transform", "translate(0," + height + ")")
+        .style("font", "12px ariel")
+        .attr("transform", "translate(0," + heightL + ")")
         .call(d3.axisBottom(xBrush));
     // // text label for the x axis
     // svgBrush.append("text")             
@@ -185,8 +210,9 @@
     // Add Y axis
     var yBrush = d3.scaleLinear()
         .domain([0, 100])
-        .range([ height, 0]);
+        .range([ heightL, 0]);
     svgBrush.append("g")
+        .style("font", "12px ariel")
         .call(d3.axisLeft(yBrush));
           // .tickFormat(formatSalary));
     // text label for the y axis
@@ -199,50 +225,59 @@
     //     .text("Attribute 2"); 
     // title label
     svgBrush.append("text")
-        .attr("x", (width / 2))             
-        .attr("y", 0 - (margin.top / 2))
+        .attr("x", (widthL / 2))             
+        .attr("y", 0 - (marginL.top / 2))
         .attr("text-anchor", "middle")  
-        .style("font-size", "20px") 
+        .style("font-size", "18px") 
         .style("text-decoration", "underline")  
-        .text("Named Scatterplot");
+        .text("Attribute Comparison Scatterplot");
       
     // Linked scatterplot (aka Overall vs. Salary Scatter)
     // add axis for linked plots
     var xLink = d3.scaleLinear()
         .domain([0, 100])
-        .range([ 0, width ]);
+        .range([ 0, widthR ]);
     svgLink.append("g")
-        .attr("transform", "translate(0," + height + ")")
+        .style("font", "12px ariel")
+        .attr("transform", "translate(0," + heightR + ")")
         .call(d3.axisBottom(xLink));    
     var yLink = d3.scaleLinear()
         .domain([0, 120000000])
-        .range([ height, 0]);
+        .range([ heightR, 0]);
     svgLink.append("g")
-        .style("font-size", "11px")
+        .style("font", "12px ariel")
         .call(d3.axisLeft(yLink)
           .tickFormat(formatSalary));
     // text label for the x axis
     svgLink.append("text")             
         .attr("transform",
-              "translate(" + (width/2) + " ," + 
-                             (height + margin.top + 30) + ")")
+              "translate(" + (widthR/2) + " ," + 
+                             (heightR + marginR.top + 15) + ")")
         .style("text-anchor", "middle")
         .text("Overall Rating");
     // text label for the y axis
     svgLink.append("text")
         .attr("transform", "rotate(-90)")
-        .attr("y", 0 - margin.left)
-        .attr("x",0 - (height / 2))
+        .attr("y", 0 - marginR.left)
+        .attr("x",0 - (heightR / 2))
         .attr("dy", "1em")
         .style("text-anchor", "middle")
         .text("Salary"); 
+        // title label
+    svgLink.append("text")
+        .attr("x", (widthL / 2) - 10)             
+        .attr("y", 0 - (marginL.top / 2))
+        .attr("text-anchor", "middle")  
+        .style("font-size", "18px") 
+        .style("text-decoration", "underline")  
+        .text("Overall Rating vs. Player Salary Scatterplot");
     // Create Salary Histogram 
     // X axis: scale and draw:
     var xHistSalary = d3.scaleLinear()
         .domain([0, 120000000])     
         .range([0, histWidth]);
     svgHistSalary.append("g")
-        .style("font", "8px times")
+        .style("font", "12px ariel")
         .attr("transform", "translate(0," + histHeight + ")")
         .call(d3.axisBottom(xHistSalary)
                   .tickFormat(formatHistSalary));
@@ -250,13 +285,14 @@
     svgHistSalary.append("text")             
         .attr("transform",
               "translate(" + (histWidth/2) + " ," + 
-                             (histHeight + histMargin.top + 20) + ")")
+                             (histHeight + histMargin.top + 15) + ")")
         .style("text-anchor", "middle")
         .text("Salary (in Millions)");
     // Y axis: initialization
     var yHistSalary = d3.scaleLinear()
         .range([histHeight, 0]);
     var yAxisHistSalary = svgHistSalary.append("g")
+        .style("font", "12px ariel")
     // text label for the y axis
     svgHistSalary.append("text")
         .attr("transform", "rotate(-90)")
@@ -286,13 +322,14 @@
     svgHistOverall.append("text")             
         .attr("transform",
               "translate(" + (histWidth/2) + " ," + 
-                             (histHeight + histMargin.top + 20) + ")")
+                             (histHeight + histMargin.top + 15) + ")")
         .style("text-anchor", "middle")
         .text("Overall Rating");
     // Y axis: initialization
     var yHistOverall = d3.scaleLinear()
         .range([histHeight, 0]);
     var yAxisHistOverall = svgHistOverall.append("g")
+          .style("font", "12px ariel")
     // text label for the y axis
     svgHistOverall.append("text")
         .attr("transform", "rotate(-90)")
@@ -310,6 +347,59 @@
         .style("text-decoration", "underline")  
         .text("Overall Rating Histogram");
 
+    // Define a Color scale: given a certain position (Forward, Winger, Defense, Goalie) return one of four colors
+    // "LS","ST","RS","LW","LF","CF","RF","RW","LAM","CAM","RAM","LM","LCM","CM","RCM","RM","LWB","LDM","CDM","RDM","RWB","LB","LCB","CB","RCB","RB","GK"
+    var color = d3.scaleOrdinal()
+        .domain(["LS", "ST","RS","LW","LF","CF","RF","RW","LAM","CAM","RAM","LM","LCM","CM","RCM","RM","LWB","LDM",
+          "CDM","RDM","RWB","LB", "LCB", "CB", "RCB", "RB", "GK"])
+        .range(["#a6cee3", "#a6cee3", "#a6cee3", "#a6cee3", "#a6cee3", "#a6cee3", "#a6cee3", "#a6cee3", "#1f78b4", "#1f78b4", "#1f78b4", "#1f78b4", "#1f78b4", "#1f78b4", 
+          "#1f78b4", "#1f78b4",  "#b2df8a", "#b2df8a", "#b2df8a", "#b2df8a", "#b2df8a", "#b2df8a", "#b2df8a", "#b2df8a", "#b2df8a", "#b2df8a", "#fb9a99"])
+
+    // Add a tooltip div. Here I define the general feature of the tooltip: stuff that do not depend on the data point.
+    // Its opacity is set to 0: we don't see it by default.
+    var tooltip = d3.select("#rating_salary_scatter")
+      .append("div")
+      .style("opacity", 0)
+      .attr("class", "tooltip")
+      .style("background-color", "#d3d3d3")
+      .style("border", "solid")
+      .style("width", "200px")
+      .style("border-width", "1px")
+      .style("border-radius", "5px")
+      .style("padding", "10px");
+    // A function that change this tooltip when the user hover a point.
+    // Its opacity is set to 1: we can now see it. Plus it set the text and position of tooltip depending on the datapoint (d)
+    var mouseover = function(d) {
+      tooltip
+        .style("opacity", 1)
+      d3.select(this)
+      .style("stroke", "black")
+      .style("opacity", 1)
+    }
+    var mousemove = function(d) {
+      tooltip
+        .html("Player Name: "+ d.Name + "<br/>" +
+              "Position: " + d.Position + "<br/>" +
+              "Overall Rating: " + d.Overall + "<br/>" +
+              "Salary: " + formatSalary(d.Value) + "<br/>" + 
+              "X Attribute: " + d[d3.select("#selectXaxis").property("value")] + "<br/>" +
+              "Y Attribute: " + d[d3.select("#selectYaxis").property("value")] + "<br/>")
+        .style("left", (d3.event.pageX), + "px")
+        .style("top", (d3.event.pageY - 28), + "px")
+        // .style("left", (d3.mouse(this)[0]+70) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
+        // .style("top", (d3.mouse(this)[1]) + "px")
+    }
+    // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
+    var mouseleave = function(d) {
+      tooltip
+        .transition()
+        .duration(200)
+        .style("opacity", 0)
+      d3.select(this)
+      .style("stroke", "none")
+      .style("opacity", 0.8)
+    };
+
     // populate the Brush scatterplot with datapoints
     var brushCircle = svgBrush.append('g')
       .selectAll("dot")
@@ -319,40 +409,9 @@
         .attr("cx", function (d) { return xBrush(d[d3.select("#selectXaxis").property("value")]); } )
         .attr("cy", function (d)  { return yBrush(d[d3.select("#selectYaxis").property("value")]); })
         .attr("r", 1.5)
-        .style("fill", "#69b3a2")
-        // .style("class", ".non_brushed")
+        .style("fill", function (d) { return color(d.Position) } );
+        // .style("fill", "#69b3a2")
     
-    // Add a tooltip div. Here I define the general feature of the tooltip: stuff that do not depend on the data point.
-    // Its opacity is set to 0: we don't see it by default.
-    var tooltip = d3.select("#rating_salary_scatter")
-      .append("div")
-      .style("opacity", 0)
-      .attr("class", "tooltip")
-      .style("background-color", "white")
-      .style("border", "solid")
-      .style("border-width", "1px")
-      .style("border-radius", "5px")
-      .style("padding", "10px");
-    // A function that change this tooltip when the user hover a point.
-    // Its opacity is set to 1: we can now see it. Plus it set the text and position of tooltip depending on the datapoint (d)
-    var mouseover = function(d) {
-      tooltip
-        .style("opacity", 1)
-    }
-    var mousemove = function(d) {
-      tooltip
-        .html("Player Name: "+ d.Name )
-        .style("left", (d3.mouse(this)[0]+90) + "px") // It is important to put the +90: other wise the tooltip is exactly where the point is an it creates a weird effect
-        .style("top", (d3.mouse(this)[1]) + "px")
-
-    }
-    // A function that change this tooltip when the leaves a point: just need to set opacity to 0 again
-    var mouseleave = function(d) {
-      tooltip
-        .transition()
-        .duration(200)
-        .style("opacity", 0)
-    };
     // Add dots to linked plot
     var linkCircle = svgLink.append('g')
         .selectAll("dot")
@@ -362,14 +421,14 @@
           .attr("cx", function (d) { return xLink(d.Overall); } )
           .attr("cy", function (d) { return yLink(+ d.Value); } )
           .attr("r", 1.5)
-          .style("fill", "#69b3a2")
+          .style("fill", function (d) { return color(d.Position) } )
+          // .style("fill", "#69b3a2")
           .on("mouseover", mouseover )
           .on("mousemove", mousemove )
           .on("mouseleave", mouseleave );
-
           // create variable brush with all features for when brush is executed
     var brush = d3.brush()
-                  .extent( [ [0,0], [width,height] ] ) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
+                  .extent( [ [0,0], [widthL,heightL] ] ) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
                   .on("start brush", updateChart)
                   .on("end", displayTable); 
     
@@ -379,14 +438,13 @@
     svgBrush.append("g")
         .call(brush)
         .attr("class", "brush") ;
-          
+   
     // When the button is changed, run the updateChart function
     d3.select("#selectXaxis").on("change", function(d) {
         // recover the option that has been chosen
         var selectedOption = d3.select(this).property("value")
         // run the updateChart function with this selected option
         deleteOldBrush()
-
         updateXaxis(selectedOption)
         // updateBrush2()
         // updateChart()
@@ -413,7 +471,6 @@
         updateHistSalary(20, data)
         updateHistOverall(20, data)
     });
-
       
     // function to change X axis on brush scatterplot (based on dropdown selection) and populate with data
     function updateXaxis(axis) {
@@ -425,7 +482,8 @@
         .attr("cx", function (d) { return xBrush(d[axis]); } )
         .attr("cy", function (d) { return yBrush(d[d3.select("#selectYaxis").property("value")]); } )
         .attr("r", 1.5)
-        .style("fill", "#69b3a2");
+        .style("fill", function (d) { return color(d.Position) } )
+        // .style("fill", "#69b3a2");
       svgBrush.select(".brush").call(brush.move, [[0,0], [1,1]])
       } 
     // function to change Y axis on brush scatterplot (based on dropdown selection) and populate with data
@@ -438,7 +496,8 @@
         .attr("cx", function (d) { return xBrush(d[d3.select("#selectXaxis").property("value")]); } )
         .attr("cy", function (d) { return yBrush(d[axis]); } )
         .attr("r", 1.5)
-        .style("fill", "#69b3a2")
+        .style("fill", function (d) { return color(d.Position) } )
+        // .style("fill", "#69b3a2")
       svgBrush.select(".brush").call(brush.move, [[0,0], [1,1]])
         // svgBrush.call(brush.move,null);
       }
@@ -468,7 +527,6 @@
       // create var that holds only data point using dataset.filter
       toVisualize = data.filter(function(d){return isBrushed(extent, xBrush(d[d3.select("#selectXaxis").property("value")]), yBrush(d[d3.select("#selectYaxis").property("value")]) )})
       // call update.svgScatter that will take in filtered data set and set data for svgScatter
-
       brushCircle.classed("brushed", function(d){return isBrushed(extent, xBrush(d[d3.select("#selectXaxis").property("value")]), yBrush(d[d3.select("#selectYaxis").property("value")]) )} )
       // clear the scatter from old data, update plot with new data
       deleteOldLink()
@@ -498,7 +556,8 @@
             .attr("cx", function (d) { return xLink(d.Overall); } )
             .attr("cy", function (d) { return yLink(+ d.Value); } )
             .attr("r", 1.5)
-            .style("fill", "#69b3a2")
+            .style("fill", function (d) { return color(d.Position) } )
+            // .style("fill", "#69b3a2")
             // add hover functionality
             .on("mouseover", mouseover )
             .on("mousemove", mousemove )
@@ -626,7 +685,6 @@
         .attr("align", (d, i) => i == 0 ? "left" : "right")
         .text(d => d);
   }
-
   // some reason when new axis is selected, the data that gets highlighted does not get the class "brushed"
       </script>
 
