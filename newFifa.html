@@ -11,7 +11,7 @@
       table {
             visibility: hidden;
             position: absolute;
-            top: 20px;
+            top: 35px;
             left: 1070px;
             font-family: sans-serif;
             font-size: 0.7em;
@@ -79,6 +79,10 @@
         position: absolute;
         top: 180px;
       }
+      .generateTable{
+        position: absolute;
+        left: 1060px;
+      }
       
     </style>
 
@@ -95,6 +99,9 @@
     <div id="rating_salary_scatter"> 
       <div class="selectTextX">Select X-axis Attribute:</div>
       <div class="selectTextY">Select Y-axis Attribute:</div>
+      <div class="generateTable">Generate Table?
+          <input type="checkbox" id="checkBox" />
+      </div>
     </div>
 
     <!-- Initialize a select button -->
@@ -425,12 +432,18 @@
           // .style("fill", "#69b3a2")
           .on("mouseover", mouseover )
           .on("mousemove", mousemove )
-          .on("mouseleave", mouseleave );
-          // create variable brush with all features for when brush is executed
+          .on("mouseleave", mouseleave );     
+   
     var brush = d3.brush()
-                  .extent( [ [0,0], [widthL,heightL] ] ) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
-                  .on("start brush", updateChart)
-                  .on("end", displayTable); 
+                    .extent( [ [0,0], [widthL,heightL] ] ) // initialise the brush area: start at 0,0 and finishes at width,height: it means I select the whole graph area
+                    .on("start brush", updateChart)
+                    .on("end", function(){
+                      var x = document.getElementById("checkBox").checked;
+                      if (x == true){
+                        console.log('cool')
+                        return displayTable();
+                      }
+                    });
     
     // call the brush on the Scatter plot
     // svgBrush
@@ -564,6 +577,24 @@
             .on("mouseleave", mouseleave )
             // .attr("class", "non_brushed");
     }
+
+    // Prep the tooltip bits, initial display is hidden
+    // var tooltip2 = svgHistOverall.append("g")
+    //   .attr("class", "tooltip")
+    //   .style("display", "none");
+        
+    // tooltip2.append("rect")
+    //   .attr("width", 30)
+    //   .attr("height", 20)
+    //   .attr("fill", "white")
+    //   .style("opacity", 0.5);
+
+    // tooltip2.append("text")
+    //   .attr("x", 15)
+    //   .attr("dy", "1.2em")
+    //   .style("text-anchor", "middle")
+    //   .attr("font-size", "12px")
+    //   .attr("font-weight", "bold");
     // A function that builds the Salary Histogram for a specific value of bin
     function updateHistSalary(nBin, data) {
       // set the parameters for the histogram
@@ -629,6 +660,14 @@
             .attr("width", function(d) { return Math.abs(xHistOverall(d.x1) - xHistOverall(d.x0) -1 ); })
             .attr("height", function(d) { return histHeight - yHistOverall(d.length); })
             .style("fill", "#69b3a2")
+          // .on("mouseover", function() { tooltip2.style("display", null); })
+          // .on("mouseout", function() { tooltip2.style("display", "none"); })
+          // .on("mousemove", function(d) {
+          //   var xPosition = d3.mouse(this)[0] - 15;
+          //   var yPosition = d3.mouse(this)[1] - 25;
+          //   tooltip2.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+          //   tooltip2.select("text").text(d.y);
+          //   })
       // If less bar in the new histogram, I delete the ones not in use anymore
       u
           .exit()
@@ -685,6 +724,11 @@
         .attr("align", (d, i) => i == 0 ? "left" : "right")
         .text(d => d);
   }
+  // function checkTrue(){
+  //   // check to see if the checkbox for displaying a table is check or not
+  //   return document.getElementById("checkBox").checked;
+
+  // }
   // some reason when new axis is selected, the data that gets highlighted does not get the class "brushed"
       </script>
 
