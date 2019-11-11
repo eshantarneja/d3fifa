@@ -11,7 +11,7 @@
       table {
             visibility: hidden;
             position: absolute;
-            top: 35px;
+            top: 325px;
             left: 1070px;
             font-family: sans-serif;
             font-size: 0.7em;
@@ -31,13 +31,13 @@
       .Xaxis {
         position: absolute;
         left: 340px;
-        top: 420px;
+        top: 710px;
         font-size: 16px;
         font-family: Arial;
       }
       .Yaxis{
         position: absolute;
-        top: 100px;
+        top: 380px;
         left: 5px;
         font-size: 15px;
         font-family: Arial;
@@ -48,7 +48,7 @@
       }
       .hist{
         position: absolute;
-        top: 480px;
+        top: 770px;
       }
      /* style of selected circles in scatterplot */
       .brushed {
@@ -70,20 +70,20 @@
       }
       .selectTextX{
         position: absolute;
-        top: 418px;
+        top: 708px;
         left: 165px;
         font-size: 18px;
 
       }
       .selectTextY{
         position: absolute;
-        top: 50px;
+        top: 330px;
         left: 12px;
         font-size: 18px;
       }
       .legendText{
         position: absolute;
-        top: 205px;
+        top: 495px;
         left: 15px;
         font-size: 18px;
       }
@@ -91,10 +91,40 @@
         position: absolute;
         left: 1060px;
       }
+      #dataNote{
+        margin:0px;
+        padding:0px;
+        font-size:15px;
+      }
+      #instrHead{
+        margin:0px;
+        padding:0px;
+      }
+      #Instructions{
+        margin:0px;
+        padding:0px;
+      }
+      #header{
+        margin: 0px;
+        padding-bottom: 15px;
+      }
       
     </style>
 
-    <title>HIST</title>
+    <title>CS396 A3</title>
+
+    <h1 id="header"><center>FIFA Player Comparison Tool</center></h1>
+    <h4 id="dataNote">Player data from the video game FIFA 19</h4>
+    <h3 id="instrHead"> Instructions:</h3>
+    <p id="Instructions"> 
+      <ol>
+        <li>Using the dropdown menus, select two attributes of interest to be plotted against each other. Upon selection of an attribute, the Player Attribute Comparison scatterplot will populate with data from all players within the FIFA database.</li>
+        <li>To analyze a subsection of this data set, brush over the Player Attribute Comparison scatterplot. The data selected within the brush will be used to re-populate the Player Rating vs. Salary Comparison chart and the two histograms.  The data are colored according to the player's position; the specific encoding can be seen in the legend on the left side of the page. </li>
+        <li>In the Player Rating vs. Salary chart, you will be able to view a plot of player rating and salaries based on your selection of data in the Player Attribute Comparison chart.  Hovering over the scatter points on this plot will enable a tooltip that identifies the player name, age, salary, rating, etc.  In doing so, you can get a better understanding of the selected players. </li>
+        <li>Notice the histograms on the bottom of the page.  These update with the data that is selected in a brush as well.  These are useful tools to visualize the distributions of both player salary and overall rating.  </li>
+        <li> Click on the checkbox to allow a table to be displayed with data from your brushed selection. This will allow you to see all of your selected data in one place.  <br/> (NOTE: You must check the box before a brush is done to have the table displayed.)</li>
+      </ol>
+    </p>
 
     <!-- Load d3.js -->
     <script src="https://d3js.org/d3.v4.js"></script>
@@ -241,7 +271,7 @@
         .attr("text-anchor", "middle")  
         .style("font-size", "18px") 
         .style("text-decoration", "underline")  
-        .text("Attribute Comparison Scatterplot");
+        .text("Player Attribute Comparison");
       
     // Linked scatterplot (aka Overall vs. Salary Scatter)
     // add X axis for linked plot
@@ -282,7 +312,7 @@
         .attr("text-anchor", "middle")  
         .style("font-size", "18px") 
         .style("text-decoration", "underline")  
-        .text("Overall Rating vs. Player Salary Scatterplot");
+        .text("Player Rating vs. Salary Comparison");
     // Create Salary Histogram 
     // add X axis - scale and draw - for salary histogram
     var xHistSalary = d3.scaleLinear()
@@ -320,7 +350,7 @@
         .attr("text-anchor", "middle")  
         .style("font-size", "20px") 
         .style("text-decoration", "underline")  
-        .text("Player Salary Histogram");
+        .text("Player Salary Distribution");
     // Create Overall Rating Histogram 
     // add X axis - scale and draw - for Overall Rating Histogram
     var xHistOverall = d3.scaleLinear()
@@ -357,7 +387,7 @@
         .attr("text-anchor", "middle")  
         .style("font-size", "20px") 
         .style("text-decoration", "underline")  
-        .text("Overall Rating Histogram");
+        .text("Player Rating Distribution");
     // Define a Color scale: given a certain position (Forward, Midfielder, Defense, Goalie) return one of four colors
     // mapping from 
     var color = d3.scaleOrdinal()
@@ -618,6 +648,7 @@
             .attr("width", function(d) { return Math.abs(xHistSalary(d.x1) - xHistSalary(d.x0) -1 ); })
             .attr("height", function(d) { return histHeight - yHistSalary(d.length); })
             .style("fill", "#69b3a2")
+
       // If less bar in the new histogram, I delete the ones not in use anymore
       u
           .exit()
