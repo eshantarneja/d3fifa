@@ -49,6 +49,7 @@
       .hist{
         position: absolute;
         top: 770px;
+        left: 100px;
       }
      /* style of selected circles in scatterplot */
       .brushed {
@@ -108,6 +109,7 @@
         margin: 0px;
         padding-bottom: 15px;
       }
+
       
     </style>
 
@@ -179,8 +181,8 @@
       heightR = 450 - marginR.top - marginR.bottom;
   // specify dimensions for the histogram plots
   var histMargin = {top: 30, right: 30, bottom: 80, left: 70},
-      histWidth = 530 - histMargin.left - histMargin.right,
-      histHeight = 500 - histMargin.top - histMargin.bottom;
+      histWidth = 490 - histMargin.left - histMargin.right,
+      histHeight = 470 - histMargin.top - histMargin.bottom;
   
   // svg for the Brush scatterplot (left scatter)
   var svgBrush = d3.select("#rating_salary_scatter")
@@ -348,7 +350,7 @@
         .attr("x", (histWidth / 2))             
         .attr("y", 0 - (histMargin.top / 2) )
         .attr("text-anchor", "middle")  
-        .style("font-size", "20px") 
+        .style("font-size", "18px") 
         .style("text-decoration", "underline")  
         .text("Player Salary Distribution");
     // Create Overall Rating Histogram 
@@ -385,7 +387,7 @@
         .attr("x", (histWidth / 2))             
         .attr("y", 0 - (histMargin.top / 2) )
         .attr("text-anchor", "middle")  
-        .style("font-size", "20px") 
+        .style("font-size", "18px") 
         .style("text-decoration", "underline")  
         .text("Player Rating Distribution");
     // Define a Color scale: given a certain position (Forward, Midfielder, Defense, Goalie) return one of four colors
